@@ -14,3 +14,5 @@ window.CONTENT.en={name:"英文",desc:"單字、文法、句型",color:"#d6e8f5"
 {lv:2,q:"Tom ___ TV after dinner.",o:["watches","watchs","watch"],h:"watch 結尾是 ch。",e:"ch 結尾要加 es。"},
 {lv:3,q:"Does she ___ milk?",o:["like","likes","liking"],h:"有 does 時，動詞回到原形。",e:"does 後面用原形動詞。"}]}
 ]}]}]};
+{name:"國中會考高頻率英文單字",units:[
+{name:"ˇA320",concepts:[
