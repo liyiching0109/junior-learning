@@ -1,4 +1,5 @@
-const V=window.VOCAB||[{ id: 1, word: "person", pos: "(名)", definition: "人", example: "He is a very nice person.", translation: "他是個很客氣的人。" },
+const V=window.VOCAB||[
+      { id: 1, word: "person", pos: "(名)", definition: "人", example: "He is a very nice person.", translation: "他是個很客氣的人。" },
       { id: 2, word: "about", pos: "(介)", definition: "有關", example: "This book is about history.", translation: "這本書是關於歷史的。" },
       { id: 3, word: "from", pos: "(介)", definition: "從……", example: "She is from Canada.", translation: "她來自加拿大。" },
       { id: 4, word: "with", pos: "(介)", definition: "有；用", example: "She walked into the room with a smile.", translation: "她帶著微笑走進房間。" },
