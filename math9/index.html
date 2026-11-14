@@ -74,7 +74,7 @@ function show(){var p=S[st],i,h='';$('c1').textContent=chip1;$('c2').textContent
  $('stage').classList.toggle('done',st===S.length-1)}
 function go(d){var n=st+d;if(n<0||n>=S.length)return;st=n;show()}
 /* ---- 題庫 ---- */
-function loadQ(){var u=units[$('sel').value],q=u.qs[qi],a=q[1],k=a.lastIndexOf('→'),svg='',m,t,
+function loadQ(){var u=units[$('sel').value];if(u.items){chip1=u.label.split('｜')[1];chip2='第 '+(qi+1)+'/'+u.items.length+' 題・';S=u.items[qi]();st=0;show();return}var q=u.qs[qi],a=q[1],k=a.lastIndexOf('→'),svg='',m,t,
  r=a.match(/(\d+):(\d+):(\d+)/g);
  if(/連比/.test(u.label)&&r){var nn=r[r.length-1].split(':').map(Number);if(Math.max.apply(null,nn)<=40)svg=bars(nn)}
  if(/1-2.*(② 平行線|④ 三角形兩邊)/.test(u.label))svg=tri();
@@ -83,7 +83,7 @@ function loadQ(){var u=units[$('sel').value],q=u.qs[qi],a=q[1],k=a.lastIndexOf('
  if(k>0)S.push({m:'<b class="t2">解題想法</b>',s:esc(a.slice(0,k).replace(/[；，\s]+$/,'')),svg:svg});
  S.push({m:'答案：<b class="g">'+esc(k>0?a.slice(k+1).trim():a)+'</b>',s:'按「隨機一題」或換單元繼續練習。',svg:svg});
  st=0;show()}
-function pick(){var u=units[$('sel').value];qi=Math.floor(Math.random()*u.qs.length);loadQ()}
+function pick(){var u=units[$('sel').value];qi=Math.floor(Math.random()*(u.items||u.qs).length);loadQ()}
 /* ---- 連比計算器 ---- */
 function gcd(x,y){return y?gcd(y,x%y):x}
 function calc(){var a=+$('a').value,b=+$('b').value,c=+$('c').value,d=+$('d').value,v=[a,b,c,d].every(function(n){return n>=1&&n<=9});
@@ -94,13 +94,97 @@ function calc(){var a=+$('a').value,b=+$('b').value,c=+$('c').value,d=+$('d').va
  {m:'第二步：x:y 同乘 '+m1+'，y:z 同乘 '+m2+'。',s:'x:y＝'+a+'×'+m1+' : '+b+'×'+m1+'＝<b class="t1">'+x+':'+y+'</b>；y:z＝'+c+'×'+m2+' : '+d+'×'+m2+'＝<b class="t2">'+y+':'+z+'</b>',svg:bars([x,y,z])},
  {m:'連比 x:y:z＝<b class="g">'+x+':'+y+':'+z+'</b>',s:'y 一樣大，就能把兩個比接在一起。',svg:bars([x,y,z])}];
  st=0;show()}
+/* ===== 學習單式逐步教學引擎 ===== */
+function gcd(x,y){return y?gcd(y,x%y):x}
+var P=function(m,s,svg){return{m:m,s:s,svg:svg}},b1=function(t){return '<b class="t1">'+t+'</b>'},b2=function(t){return '<b class="t2">'+t+'</b>'},bg=function(t){return '<b class="g">'+t+'</b>'};
+function bn(nm,a){var mx=Math.max.apply(null,a),u=Math.min(470/mx,60),h='';a.forEach(function(v,i){var y=20+i*70;h+='<text x="8" y="'+(y+28)+'" font-size="20" font-weight="900" fill="var(--ink2)">'+nm[i]+'</text><rect class="i'+(i%3+1)+'" x="110" y="'+y+'" width="'+v*u+'" height="40" rx="6"/><text x="'+(120+v*u)+'" y="'+(y+29)+'" font-size="22" font-weight="900" fill="var(--ink)">'+v+'</text>'});return h}
+var T2=function(r){return r.v.join(':')+'＝'+r.n.join(':')};
+function R2(sp,pre,q0){
+ var r1={v:sp[0].split(''),n:[sp[1],sp[2]]},r2={v:sp[3].split(''),n:[sp[4],sp[5]]},
+ sh=r1.v.filter(function(v){return r2.v.indexOf(v)>=0})[0],s1=r1.n[r1.v.indexOf(sh)],s2=r2.n[r2.v.indexOf(sh)],L=s1*s2/gcd(s1,s2),k1=L/s1,k2=L/s2,
+ a1=r1.n.map(function(n){return n*k1}),a2=r2.n.map(function(n){return n*k2}),res={};
+ r1.v.forEach(function(v,i){res[v]=a1[i]});r2.v.forEach(function(v,i){res[v]=a2[i]});
+ var rv=['x','y','z'].filter(function(v){return v in res}),rn=rv.map(function(v){return res[v]});
+ var f=[P(b1('題目')+'：'+(q0||'已知 '+T2(r1)+'，'+T2(r2)+'，求 '+rv.join(':')),'目標：把兩個比合成一個連比。')];
+ var rest=[P(b1('找共同字母')+'：兩個比都有「'+sh+'」',sh+' 在第一個比是 '+s1+' 份，在第二個比是 '+s2+' 份，份數不同，不能直接接起來。'),
+ P('把「'+sh+'」變成一樣多',s1+' 和 '+s2+' 的最小公倍數是 '+bg(L)+(L===s1*s2?'（'+s1+'×'+s2+'）':'')+'。'),
+ P(b1('第一個比')+' 同乘 '+k1,T2(r1)+'：'+r1.n.map(function(n){return n+'×'+k1}).join(' : ')+' ＝ '+a1.join(':'),bn(r1.v,a1)),
+ P(b2('第二個比')+' 同乘 '+k2,T2(r2)+'：'+r2.n.map(function(n){return n+'×'+k2}).join(' : ')+' ＝ '+a2.join(':'),bn(r2.v,a2)),
+ P('合併：'+sh+' 都是 '+L+'，三個字母排在一起','連比 '+rv.join(':')+'＝'+bg(rn.join(':')),bn(rv,rn)),
+ P('驗算',a1.join(':')+' 同除以 '+k1+' 得 '+r1.n.join(':')+'；'+a2.join(':')+' 同除以 '+k2+' 得 '+r2.n.join(':')+'，都和題目相同。',bn(rv,rn))];
+ return f.concat(pre||[],rest)}
+function REL(rl){var tx=function(r){return (r[0]>1?r[0]:'')+r[1]+'＝'+(r[2]>1?r[2]:'')+r[3]},sp=[],pre;
+ pre=[P(b2('先把等式改成比'),'口訣：兩邊係數對調。'+rl.map(function(r){return tx(r)+' → '+r[1]+':'+r[3]+'＝'+r[2]+':'+r[0]+'（驗算 '+r[2]+'×'+r[0]+'＝'+r[0]+'×'+r[2]+'）'}).join('；'))];
+ rl.forEach(function(r){sp.push(r[1]+r[3],r[2],r[0])});
+ return R2(sp,pre,'x、y、z 皆不為 0，且 '+rl.map(tx).join('，')+'，求 x:y:z')}
+function SC(o){var base=o.base,S,nm,vals,p,q,ki,pp,qq,rs,unk;
+ if(o.mult){nm=o.names;p=o.mult;vals=base.map(function(x){return x*p});
+  return [P(b1('題目')+'：'+o.q,'原本的比是 '+base.join(':')+'，現在要做 '+p+' 份。',bn(nm,base)),
+  P(b2('找倍數'),'1 份變成 '+p+' 份，每一項都要乘 '+bg(p)+'，比例才不會變。',bn(nm,base)),
+  P('每一項都乘 '+p,nm.map(function(x,i){return x+'：'+base[i]+'×'+p+'＝'+vals[i]+o.unit}).join('；'),bn(nm,vals)),
+  P(bg('答案')+'：'+vals.join(':'),'連比 '+base.join(':')+'＝'+vals.join(':'),bn(nm,vals))]}
+ ki=o.tgt.findIndex(function(t){return typeof t==='number'});p=o.tgt[ki];q=base[ki];var g=gcd(p,q);pp=p/g;qq=q/g;rs=qq===1?''+pp:pp+'/'+qq;
+ vals=base.map(function(x){return x*pp/qq});nm=o.tgt.map(String);unk=o.tgt.filter(function(t){return typeof t==='string'});
+ return [P(b1('題目')+'：'+base.join(':')+'＝'+o.tgt.join(':')+'，求 '+unk.join('、'),'把兩個比上下對齊，同一位置互相對應。',bn(base.map(String),base)),
+ P(b2('找已知的一項'),'第 '+(ki+1)+' 項：原本是 '+q+' 份，現在是 '+p+'。',bn(base.map(String),base)),
+ P(b1('算倍數 r'),'r＝'+p+'÷'+q+'＝'+bg(rs)+'（每項都要乘 '+rs+'）'),
+ P('每一項都乘 r',o.tgt.map(function(t,i){return typeof t==='string'?t+'＝'+base[i]+'×'+rs+'＝'+vals[i]:null}).filter(Boolean).join('；'),bn(nm.map(function(x,i){return typeof o.tgt[i]==='string'?x+'＝':x}),vals)),
+ P(bg('答案')+'：'+o.tgt.map(function(t,i){return typeof t==='string'?t+'＝'+vals[i]:''}).filter(Boolean).join('，'),'檢查：'+vals.join(':')+' 約分後等於 '+base.join(':')+'。',bn(nm,vals))]}
+function AP(o){var nm=o.names,r=o.r,sm=r.reduce(function(a,b){return a+b}),R=o.total/sm,v=r.map(function(x){return x*R}),
+ S=[P(b1('題目')+'：'+o.q,'比＝'+r.join(':')+'，總共 '+o.total+o.unit+'。',bn(nm,r)),
+ P(b2('假設每一份是 r'),nm.map(function(x,i){return x+'＝'+r[i]+'r'}).join('，'),bn(nm,r)),
+ P(b1('把各部分加起來＝總數'),r.map(function(x){return x+'r'}).join('＋')+'＝'+sm+'r＝'+o.total),
+ P(b2('解 r'),sm+'r＝'+o.total+' → r＝'+o.total+'÷'+sm+'＝'+bg(R)),
+ P(b1('把 r 代回去'),nm.map(function(x,i){return x+'＝'+r[i]+'×'+R+'＝'+v[i]}).join('；'),bn(nm,v))];
+ (o.ex||[]).forEach(function(e){var t=e[1].reduce(function(a,i){return a+v[i]},0);S.push(P(b2(e[0]),e[1].map(function(i){return v[i]}).join('＋')+'＝'+bg(t)))});
+ S.push(P(bg('答案'),(o.ex?o.ex.map(function(e){return e[0]+'＝'+e[1].reduce(function(a,i){return a+v[i]},0)}):nm.map(function(x,i){return x+'＝'+v[i]+o.unit})).join('，')));return S}
+function ptri(K,hl){var v=function(k,x,y,a){var t=K[k]!=null?K[k]:(k===hl?'？':'');return t===''?'':'<text x="'+x+'" y="'+y+'" font-size="20" font-weight="900" text-anchor="'+(a||'middle')+'" fill="'+(k===hl?'var(--orange-d)':'var(--blue)')+'">'+k+'＝'+t+'</text>'};
+ return tri()+v('AD',210,70,'end')+v('DB',130,200,'end')+v('AE',430,70,'start')+v('EC',500,200,'start')+v('DE',320,158)+v('BC',320,324)+v('AB',20,100,'start')+v('AC',620,100,'end')}
+var PR=[[['AD','DB'],['AE','EC']],[['AD','AB'],['AE','AC']],[['DB','AB'],['EC','AC']],[['AD','AB'],['DE','BC']],[['AE','AC'],['DE','BC']]],
+OPS=[['AB','AD','DB','+'],['AD','AB','DB','-'],['DB','AB','AD','-'],['AC','AE','EC','+'],['AE','AC','EC','-'],['EC','AC','AE','-']];
+function PL(g,ask){var K={},S=[],k;for(k in g)K[k]=g[k];
+ var qt=Object.keys(g).map(function(k){return k+'＝'+g[k]}).join('、');
+ S.push(P(b1('題目')+'：△ABC 中，D、E 在 AB、AC 上，DE∥BC，'+qt+'，求 '+ask.join('、'),'先把已知的長度標在圖上，橘色是要求的。',ptri(K,ask[0])));
+ S.push(P(b2('找關係')+'：DE∥BC','平行線把兩邊截成比例線段：AD:DB＝AE:EC；AD:AB＝AE:AC；DB:AB＝EC:AC；AD:AB＝DE:BC。',ptri(K,ask[0])));
+ function solve(T,d){var i,o,p,nm,n,val,ex,idx;
+  for(i=0;i<OPS.length;i++){o=OPS[i];if(o[0]===T&&K[o[1]]!=null&&K[o[2]]!=null){val=o[3]==='+'?K[o[1]]+K[o[2]]:K[o[1]]-K[o[2]];K[T]=val;S.push(P(b1('先求 '+T)+'：線段'+(o[3]==='+'?'相加':'相減'),T+'＝'+o[1]+(o[3]==='+'?'＋':'－')+o[2]+'＝'+K[o[1]]+(o[3]==='+'?'＋':'－')+K[o[2]]+'＝'+bg(val),ptri(K,T)));return true}}
+  for(i=0;i<PR.length;i++){p=PR[i];nm=[p[0][0],p[0][1],p[1][0],p[1][1]];n=nm.filter(function(x){return K[x]==null});
+   if(nm.indexOf(T)>=0&&n.length===1){idx=nm.indexOf(T);var w=nm.map(function(x){return x===T?'？':K[x]});
+    var e=[[1,2,3],[0,3,2],[0,3,1],[1,2,0]][idx];var A=nm[e[0]],B=nm[e[1]],C=nm[e[2]],ex=[idx===0||idx===3?1:0];
+    var num=[[1,2,3],[0,3,2],[0,3,1],[1,2,0]][idx];var mul=idx===0?[1,2,3]:idx===1?[0,3,2]:idx===2?[0,3,1]:[1,2,0];
+    val=Math.round(K[nm[mul[0]]]*K[nm[mul[1]]]/K[nm[mul[2]]]*100)/100;
+    S.push(P(b1('寫文字比例'),nm[0]+':'+nm[1]+'＝'+nm[2]+':'+nm[3]+'　（已知三個、只有 '+T+' 不知道）',ptri(K,T)));
+    S.push(P(b2('代入數字'),w[0]+':'+w[1]+'＝'+w[2]+':'+w[3]+'。外項積＝內項積，交叉相乘：'+nm[0]+'×'+nm[3]+'＝'+nm[1]+'×'+nm[2],ptri(K,T)));
+    K[T]=val;S.push(P(bg('解出')+' '+T,T+'＝'+nm[mul[0]]+'×'+nm[mul[1]]+'÷'+nm[mul[2]]+'＝'+K[nm[mul[0]]]+'×'+K[nm[mul[1]]]+'÷'+K[nm[mul[2]]]+'＝'+bg(val),ptri(K,T)));return true}}
+  if(d>2)return false;
+  for(i=0;i<OPS.length;i++){o=OPS[i];if(o[0]!==T&&K[o[0]]==null&&K[o[1]]!=null&&K[o[2]]!=null){solve(o[0],d+1);return solve(T,d+1)}}return false}
+ ask.forEach(function(T){solve(T,0)});
+ S.push(P(bg('答案')+'：'+ask.map(function(k){return k+'＝'+K[k]}).join('，'),'DE∥BC 時，比例線段可以幫我們求出沒標出來的邊。',ptri(K,'')));return S}
+var mk=function(a,f){return a.map(function(s){return function(){return f(s)}})};
+var ENG=[
+{label:'1-1 連比例｜概念① 連比的運算',items:mk([
+ {names:['梅酒','檸檬汁','蘋果西打'],base:[5,1,3],mult:3,unit:'杯',q:'一壺雞尾酒：梅酒5杯、檸檬汁1杯、蘋果西打3杯。調3壺，各要幾杯？'},
+ {names:['紅色','黃色','白色'],base:[1,2,4],mult:2,unit:'顆',q:'一團黏土：紅1顆、黃2顆、白4顆。調2團，各要幾顆？'},
+ {base:[2,1,3],tgt:[4,'x','y']},{base:[2,3,4],tgt:[8,'y','z']},{base:[3,5,7],tgt:['x','y',14]},{base:[6,8,10],tgt:['x','y',5]},{base:[15,18,27],tgt:[5,'y','z']}],SC)},
+{label:'1-1 連比例｜概念② 由兩個比求連比',items:mk([['xy',2,3,'yz',3,4],['xy',6,5,'xz',6,1],['xy',4,5,'yz',5,4],['xy',3,4,'xz',3,5],['xy',1,2,'yz',4,3],['xy',6,5,'xz',3,2],['xy',4,3,'yz',9,5],['xy',10,1,'xz',2,3],['xy',2,5,'xz',7,3],['xy',2,3,'yz',4,5],['xz',1,5,'yz',2,3],['xy',2,3,'xz',3,4],['xz',5,6,'yz',4,9],['xy',1,4,'yz',6,5],['xy',1,15,'yz',10,7]],function(s){return R2(s)})},
+{label:'1-1 連比例｜概念③ 由兩數關係求連比',items:mk([[[1,'x',2,'y'],[3,'y',2,'z']],[[4,'x',3,'y'],[2,'y',3,'z']],[[5,'x',3,'y'],[2,'y',1,'z']],[[9,'x',1,'y'],[2,'x',3,'z']],[[3,'x',2,'z'],[3,'y',7,'z']],[[8,'x',5,'y'],[1,'x',4,'z']]],REL)},
+{label:'1-1 連比例｜主題2 連比例式的應用問題',items:mk([
+ {names:['Joeman','Andy','阿神'],r:[5,4,6],total:750,unit:'萬人',q:'三人訂閱數比 5:4:6，總數 750 萬人'},
+ {names:['老農夫','大兒子','小兒子'],r:[3,10,2],total:60,unit:'箱',q:'採收箱數比 3:10:2，共 60 箱'},
+ {names:['小A','小B','小C'],r:[6,7,5],total:900,unit:'元',q:'付款金額比 6:7:5，總金額 900 元'},
+ {names:['AB','BC','CD'],r:[3,2,5],total:250,unit:'公分',q:'AB:BC＝3:2，BC:CD＝2:5（BC重疊只算一次），全長 AB+BC+CD＝250，求竹竿AB+BC、掃把BC+CD',ex:[['竹竿 AB+BC',[0,1]],['掃把 BC+CD',[1,2]]]}],AP)},
+{label:'1-2 比例線段｜概念② 平行線截比例線段性質',items:mk([
+ [{AD:3,DB:8,AE:6},['EC']],[{DB:6,EC:12,AD:2},['AE']],[{DB:9,AB:12,EC:12},['AC']],[{AE:2,AC:6,AD:1},['AB']],[{DE:6,BC:18,AD:3},['AB','DB']],[{AD:8,AB:12,DE:4},['BC']],[{DE:2,BC:3,AE:4},['AC','EC']],[{AD:6,AB:12,DE:5},['BC']],[{DE:3,BC:5,AD:6},['AB','DB']]],function(s){return PL(s[0],s[1])})}];
+var H0='<optgroup label="★ 學習單逐步教學">';
+ENG.forEach(function(u){units.push(u);H0+='<option value="'+(units.length-1)+'">'+esc(u.label.split('｜')[0].slice(0,3)+' '+u.label.split('｜')[1])+'</option>'});H0+='</optgroup>';
+
 /* ---- 初始化 ---- */
 function mode_(m){mode=m;$('pBank').hidden=m!=='bank';$('pCalc').hidden=m!=='calc';$('tBank').className='btn '+(m==='bank'?'on':'ghost');$('tCalc').className='btn '+(m==='calc'?'on':'ghost');m==='bank'?(units.length&&pick()):calc()}
 $('tBank').onclick=function(){mode_('bank')};$('tCalc').onclick=function(){mode_('calc')};
 $('sel').onchange=pick;$('rnd').onclick=pick;$('go').onclick=calc;$('prev').onclick=function(){go(-1)};$('next').onclick=function(){go(1)};
 document.addEventListener('keydown',function(e){if(/INPUT|SELECT/.test(e.target.tagName))return;if(e.key==='ArrowLeft')go(-1);if(e.key==='ArrowRight')go(1)});
-fetch('data/curriculum.json').then(function(r){return r.json()}).then(function(D){var h='';
- D.chapters.forEach(function(ch){ch.sections.forEach(function(se){h+='<optgroup label="'+esc(se.name)+'">';se.topics.forEach(function(tp){tp.concepts.forEach(function(c){units.push({label:se.name+'｜'+c.name,qs:c.qs});h+='<option value="'+(units.length-1)+'">'+esc(c.name)+'</option>'})});h+='</optgroup>'})});
+fetch('data/curriculum.json').then(function(r){return r.json()}).then(function(D){var h=H0;
+ D.chapters.forEach(function(ch){ch.sections.forEach(function(se){h+='<optgroup label="'+esc(se.name)+'（簡版）">';se.topics.forEach(function(tp){tp.concepts.forEach(function(c){units.push({label:se.name+'｜'+c.name,qs:c.qs});h+='<option value="'+(units.length-1)+'">'+esc(c.name)+'</option>'})});h+='</optgroup>'})});
  $('sel').innerHTML=h;pick()}).catch(function(){S=[{m:'無法載入題目資料',s:'請確認 data/curriculum.json 在同一資料夾內。'}];st=0;show()});
 })();
 </script></body></html>
