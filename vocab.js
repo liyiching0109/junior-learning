@@ -318,7 +318,8 @@ const V=window.VOCAB||[
       { id: 317, word: "bake", pos: "(動)", definition: "烘烤", example: "I want to bake a cake for her birthday.", translation: "我想為她的生日烤一個蛋糕。" },
       { id: 318, word: "face", pos: "(名/動)", definition: "臉；面對", example: "She washed her face in the morning.", translation: "她早上洗了臉。" },
       { id: 319, word: "piano", pos: "(名)", definition: "鋼琴", example: "He plays the piano beautifully.", translation: "他彈鋼琴彈得很美。" },
-      { id: 320, word: "lunch", pos: "(名)", definition: "午餐", example: "Let's have lunch together.", translation: "讓我們一起吃午餐吧。" }],$=s=>document.querySelector(s);
+      { id: 320, word: "lunch", pos: "(名)", definition: "午餐", example: "Let's have lunch together.", translation: "讓我們一起吃午餐吧。" }
+],$=s=>document.querySelector(s);
 const ld=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}};
 const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 const E=t=>String(t).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
