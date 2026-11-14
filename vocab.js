@@ -4,6 +4,7 @@ const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 const E=t=>String(t).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
 const NAMES={class3:'班級（三）',class4:'班級（四）',other:'其他'};
 let S=ld('v960',{}),cls=ld('v960cls','class3'),idx=0,flip=false,box='short',T=ld('set',{});
+const em=w=>(window.EMOJI||{})[String(w).toLowerCase()]||'📘';
 const st=id=>((S[cls]||{})[id])||'unlearned';
 const setSt=(id,s)=>{(S[cls]=S[cls]||{})[id]=s;sv('v960',S);stats()};
 const say=w=>{if(!window.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(w);u.lang='en-US';u.rate=.85;speechSynthesis.speak(u)}catch(e){}};
@@ -11,7 +12,7 @@ function stats(){const c={unlearned:0,short:0,long:0};V.forEach(v=>c[st(v.id)]++
 function tabs(){$('#cls').innerHTML=Object.keys(NAMES).map(k=>`<button data-c="${k}" class="${k===cls?'on':''}">${NAMES[k]}</button>`).join('')}
 function card(){if(!V.length){$('#front').hidden=false;$('#back').hidden=true;$('#front').innerHTML='<p class="word">單字庫是空的</p><p class="pos">請檢查 data/vocab960.js 有沒有上傳成功，以及內容格式是否正確</p>';return}const v=V[idx];if(!v)return;flip=false;$('#front').hidden=false;$('#back').hidden=true;$('#hid').hidden=false;$('#shown').hidden=true;
  $('#bid').textContent='#'+String(v.id).padStart(3,'0');$('#bst').textContent={unlearned:'未學習',short:'短期記憶',long:'已精熟'}[st(v.id)];
- $('#w').textContent=v.word;$('#p').textContent=v.pos;$('#ex').textContent=v.example;$('#df').textContent=v.definition;$('#tr').textContent=v.translation;
+ $('#emo').textContent=em(v.word);$('#w').textContent=v.word;$('#p').textContent=v.pos;$('#ex').textContent=v.example;$('#df').textContent=v.definition;$('#tr').textContent=v.translation;
  $('#pos2').textContent=(idx+1)+' / '+V.length;$('#jmp').value=v.id;$('#jmp').max=V.length}
 function toggle(){if(!V.length)return;flip=!flip;$('#front').hidden=flip;$('#back').hidden=!flip}
 const go=i=>{if(!V.length)return;idx=(i+V.length)%V.length;card()};
@@ -21,7 +22,7 @@ let tm;
 function list(){const q=$('#q').value.trim().toLowerCase();let a=V.filter(v=>st(v.id)===box);const n=a.length;
  if(q)a=a.filter(v=>v.word.toLowerCase().includes(q)||v.definition.includes(q)||String(v.id)===q);
  $('#lt').textContent=TT[box]+'（共 '+n+' 個）';
- $('#lb').innerHTML=a.slice(0,80).map(v=>`<div class="li"><span><b>${E(v.word)}</b> <small>${E(v.pos)}</small><br>${E(v.definition)}</span><span><button data-s="${E(v.word)}" aria-label="發音">🔊</button> <button data-g="${v.id}">前往</button></span></div>`).join('')||'<p class="lead">這裡還沒有單字。</p>'+(a.length>80?'':'');
+ $('#lb').innerHTML=a.slice(0,80).map(v=>`<div class="li"><span><span class="lemo" aria-hidden="true">${em(v.word)}</span><b>${E(v.word)}</b> <small>${E(v.pos)}</small><br>${E(v.definition)}</span><span><button data-s="${E(v.word)}" aria-label="發音">🔊</button> <button data-g="${v.id}">前往</button></span></div>`).join('')||'<p class="lead">這裡還沒有單字。</p>'+(a.length>80?'':'');
  if(a.length>80)$('#lb').insertAdjacentHTML('beforeend','<p class="lead">只顯示前 80 個，請用搜尋縮小範圍。</p>')}
 /* 配對考驗 */
 let CW=[],err={},selW=null,selD=null,got=0;

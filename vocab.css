@@ -25,3 +25,5 @@ body.hc .stat{background:#000;color:#fff}
 .m2 .okk{border-color:var(--ok);background:var(--okbg);color:var(--ok)}
 .m2 .bad{border-color:var(--no);background:var(--nobg)}
 @media(max-width:520px){.stats{gap:6px}.word{font-size:2em}}
+.emo{font-size:3.6em;text-align:center;line-height:1.2;margin:4px 0 0}
+.lemo{font-size:1.6em;margin-right:6px}
