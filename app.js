@@ -15,7 +15,7 @@ function render(){const[s,g,u]=location.hash.slice(1).split('/');
  if(g===undefined)return grades(s);
  if(u===undefined)return units(s,+g);
  unit(s,+g,+u)}
-function home(){app.innerHTML=`<h2>今天想練習哪一科？</h2><p class="lead">沒有時間限制，答錯可以再試。</p><div class="grid">${Object.keys(C).map(s=>{let a=0,b=0;C[s].grades.forEach((G,g)=>G.units.forEach((_,u)=>{const p=prog(s,g,u);a+=p[0];b+=p[1]}));return`<a class="card" style="--c:${C[s].color};text-decoration:none" href="#${s}">${E(C[s].name)}<small>${E(C[s].desc||'')}　已練習 ${a} / ${b} 個概念</small></a>`}).join('')}</div>`}
+function home(){app.innerHTML=`<h2>今天想練習哪一科？</h2><p class="lead">沒有時間限制，答錯可以再試。</p><div class="grid">${Object.keys(C).map(s=>{let a=0,b=0;C[s].grades.forEach((G,g)=>G.units.forEach((_,u)=>{const p=prog(s,g,u);a+=p[0];b+=p[1]}));return`<a class="card" style="--c:${C[s].color};text-decoration:none" href="#${s}">${E(C[s].name)}<small>${E(C[s].desc||'')}　已練習 ${a} / ${b} 個概念</small></a>`}).join('')}<a class="card" style="--c:#e6dcf3;text-decoration:none" href="vocab.html">英文單字卡<small>國中基礎 960 單字・短期／長期記憶盒</small></a></div>`}
 function grades(s){app.innerHTML=crumb([C[s].name])+`<h2>${E(C[s].name)}：選擇年級／冊別</h2><div class="grid">${C[s].grades.map((G,g)=>`<a class="card" style="--c:${C[s].color};text-decoration:none" href="#${s}/${g}">${E(G.name)}<small>${G.units.length} 個單元</small></a>`).join('')}</div>`}
 function units(s,g){const G=C[s].grades[g];app.innerHTML=crumb([C[s].name,s],[G.name])+`<h2>${E(G.name)}：選擇單元</h2><div class="grid">${G.units.map((U,u)=>{const p=prog(s,g,u);return`<a class="card" style="--c:${C[s].color};text-decoration:none" href="#${s}/${g}/${u}">${E(U.name)}<small>已練習 ${p[0]} / ${p[1]} 個概念</small></a>`}).join('')}</div>`}
 function unit(s,g,u){const G=C[s].grades[g],U=G.units[u];

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>英文單字卡｜國中特殊需求支持學習網</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="vocab.css">
+</head>
+<body>
+<header><div class="wrap">
+<a class="logo" href="index.html">← 回首頁</a>
+<div class="tools"><button id="fm" aria-label="縮小字體">A－</button><button id="fp" aria-label="放大字體">A＋</button><button id="hc" aria-pressed="false">高對比</button></div>
+</div></header>
+<main><div class="wrap">
+<h2>英文單字卡（基礎 960）</h2>
+<div class="chips" id="cls"></div>
+<div class="stats">
+<button class="stat s-un card" data-box="unlearned"><small>未學習</small><b id="n-un">0</b></button>
+<button class="stat s-short card" data-box="short"><small>短期記憶盒</small><b id="n-short">0</b></button>
+<button class="stat s-long card" data-box="long"><small>長期記憶盒</small><b id="n-long">0</b></button>
+</div>
+<div class="bar2">
+<label>編號 <input id="jmp" type="number" min="1" inputmode="numeric"></label>
+<button id="go">查閱</button>
+<button id="chal" class="primary">考驗短期記憶（抽 3 詞）</button>
+<button id="rst">重新學習本班</button>
+</div>
+<div class="panel fc" id="fc" tabindex="0" role="button" aria-label="點擊翻面">
+<div class="top"><span id="bid"></span><span id="bst"></span></div>
+<div id="front">
+<p class="word" id="w"></p><p class="pos" id="p"></p>
+<p class="hint">點卡片翻面，先猜例句的意思</p>
+</div>
+<div id="back" hidden>
+<div class="ex"><small>英文例句：</small><br><span id="ex"></span></div>
+<div id="hid" style="text-align:center"><button id="rev">顯示中文釋義與翻譯</button></div>
+<div id="shown" class="ex" hidden>釋義：<b id="df"></b><br>翻譯：<span id="tr"></span></div>
+<p class="hint">再點一次翻回正面</p>
+</div>
+<span></span>
+</div>
+<div class="nav"><button id="pv">◀ 上一個</button><span id="pos2"></span><button id="nx">下一個 ▶</button></div>
+<div class="two"><button id="toS" class="primary">存入短期記憶盒</button><button id="toL">直接標記已精熟（長期）</button></div>
+<div class="row"><button id="say">🔊 發音</button></div>
+</div></main>
+<div class="ov" id="ovl" hidden><div class="dlg"><div class="row" style="margin:0 0 10px;justify-content:space-between"><b id="lt"></b><button id="lc">關閉</button></div><input id="q" placeholder="搜尋單字或中文" style="font:inherit;width:100%;padding:8px 12px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink)"><div id="lb"></div></div></div>
+<div class="ov" id="ovc" hidden><div class="dlg"><div class="row" style="margin:0 0 10px;justify-content:space-between"><b>3 詞配對考驗</b><button id="cc">關閉</button></div><div id="cb"></div></div></div>
+<script src="data/vocab960.js"></script>
+<script src="vocab.js"></script>
+</body>
+</html>
