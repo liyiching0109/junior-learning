@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>九年級數學題庫</title>
+<style>
+:root{--bg:#fff;--fg:#1f2937;--card:#f3f4f6;--ac:#2563eb;--bd:#d1d5db}
+@media (prefers-color-scheme:dark){:root{--bg:#111827;--fg:#e5e7eb;--card:#1f2937;--ac:#60a5fa;--bd:#374151}}
+body{margin:0;font-family:system-ui,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--fg);line-height:1.6}
+header{padding:16px;border-bottom:1px solid var(--bd);position:sticky;top:0;background:var(--bg)}
+h1{margin:0 0 8px;font-size:1.3rem}
+input{width:100%;max-width:420px;padding:8px;border:1px solid var(--bd);border-radius:6px;background:var(--card);color:var(--fg)}
+main{max-width:860px;margin:0 auto;padding:16px}
+details{margin:8px 0;border:1px solid var(--bd);border-radius:8px;padding:6px 12px;background:var(--card)}
+summary{cursor:pointer;font-weight:600}
+.q{margin:6px 0;padding:6px 0;border-top:1px dashed var(--bd)}
+.a{display:none;color:var(--ac);margin-top:2px}
+.q.show .a{display:block}
+button{border:1px solid var(--ac);background:none;color:var(--ac);border-radius:6px;padding:2px 8px;cursor:pointer;margin-left:8px}
+.tag{font-size:.8rem;color:var(--ac)}
+</style>
+</head>
+<body>
+<header><h1>九年級數學題庫（康軒版）</h1>
+<input id="s" placeholder="搜尋章節、概念或題目…"></header>
+<main id="m">載入中…</main>
+<script>
+let D;
+const m=document.getElementById('m');
+fetch('data/curriculum.json').then(r=>r.json()).then(d=>{D=d;render('')}).catch(()=>m.textContent='無法載入資料（請用 GitHub Pages 或本機伺服器開啟）');
+document.getElementById('s').addEventListener('input',e=>render(e.target.value.trim()));
+function esc(t){return String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+function render(k){
+ let h='';
+ for(const ch of D.chapters){
+  let cs='';
+  for(const se of ch.sections){
+   let ts='';
+   for(const tp of se.topics){
+    for(const c of tp.concepts){
+     const qs=c.qs.filter(q=>!k||(c.name+tp.name+se.name+q[0]+q[1]).includes(k));
+     if(!qs.length)continue;
+     ts+=`<details ${k?'open':''}><summary>${esc(tp.name)}｜${esc(c.name)}</summary>`+
+      qs.map(q=>`<div class="q"><div>${esc(q[0])}<button onclick="this.closest('.q').classList.toggle('show')">答案</button></div><div class="a">${esc(q[1])}</div></div>`).join('')+'</details>';
+    }
+   }
+   if(ts)cs+=`<h3>${esc(se.name)}${se.exam?' <span class="tag">段考範圍</span>':''}</h3>`+ts;
+  }
+  if(cs)h+=`<h2>${esc(ch.name)}</h2>`+cs;
+ }
+ if(!k&&D.exams){
+  h+='<h2>歷屆段考</h2>'+D.exams.map(e=>`<details><summary>${esc(e.name)}</summary><p>${esc(e.note)}</p><p>選擇題：${esc(e.mc)}</p>`+e.part2.map(p=>`<div class="q">第${p[0]}題：${esc(p[1])}</div>`).join('')+'</details>').join('');
+ }
+ m.innerHTML=h||'沒有符合的結果';
+}
+</script>
+</body>
+</html>
